@@ -1,11 +1,28 @@
 {
-  "name": "skill-tree-builder",
+  "name": "caps",
   "version": "1.0.0",
-  "private": true,
+  "description": "## Overview",
+  "main": "app.js",
   "scripts": {
-    "client:dev": "npm --prefix client run dev",
-    "server:dev": "npm --prefix server run dev",
-    "client:build": "npm --prefix client run build",
-    "server:start": "npm --prefix server run start"
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "db:schema": "psql -d greetings -f db/schema.sql",
+    "db:seed": "node --env-file=example.env db/seed.js"
+
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iolado/CapS..git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/iolado/CapS./issues"
+  },
+  "homepage": "https://github.com/iolado/CapS.#readme",
+  "dependencies": {
+    "express": "^5.2.1",
+    "nodemon": "^3.1.14",
+    "pg": "^8.20.0"
   }
 }

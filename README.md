@@ -2,133 +2,275 @@
 
 ## Overview
 
-Skill Tree Builder is a simple full-stack app for creating learning paths as skill trees. For the current code review milestone, the app focuses on one core feature: creating and viewing skill trees.
+Skill Tree Builder is a full-stack web app that helps users plan and track learning goals using a visual skill tree. Users can create custom trees, add skills as nodes, define prerequisites, and track progress as they unlock new skills.
 
-## Problem Statement
+The idea is inspired by RPG-style progression systems, but applied to real-life learning goals like web development, data science, or fitness.
 
-People often plan learning goals with scattered notes or checklists. This project explores a cleaner way to organize those goals by saving each path as a named skill tree.
+## Elevator Pitch
 
-## Current Goal
+Skill Tree Builder makes learning more structured and motivating by turning goals into visual progression maps. Instead of keeping scattered notes or checklists, users can build a skill tree, connect related skills, and unlock new ones as they make progress.
 
-This version is intentionally limited for code review.
+## Users
 
-Implemented:
+This app is designed for:
 
-- create a skill tree
-- view all saved skill trees
+- Students
+- Career switchers
+- Self-learners
+- Hobbyists who want a more visual way to track progress
 
-Temporarily removed for now:
+## MVP Features
 
-- authentication
-- skill nodes
-- prerequisites
-- progress tracking
-- visual tree rendering
+### 1. User Authentication
 
-## Core Feature
+Users can:
 
-Users can enter a tree title and description, submit the form, and immediately see the new skill tree in the list.
+- Sign up
+- Log in
+- Log out
+- View only their own trees and progress
 
-This gives the project one clear end-to-end feature to review:
+### 2. Create and Manage Skill Trees
 
-- React form
-- API request
-- Express route
-- local data persistence
-- dynamic rendering of saved data
+Users can:
 
-## Tech Stack
+- Create a new skill tree
+- Edit a tree
+- Delete a tree
 
-- React
-- Vite
-- Node.js
-- Express
-- local JSON file storage
+Example:
 
-## Architecture Overview
+- Frontend Developer Path
+- Data Science Roadmap
+- Fitness Goals Tree
 
-### Frontend
+### 3. Create and Manage Skills
 
-- `client/src/pages` contains the main page
-- `client/src/components` contains the form, navbar, and tree card
-- `client/src/data` contains API requests
-- `client/src/styles` contains the app styles
+Users can:
 
-### Backend
+- Add skills as nodes inside a tree
+- Edit skill details
+- Delete skills
 
-- `server/src/routes` contains API routes
-- `server/src/controllers` contains request handlers
-- `server/src/data` contains simple JSON persistence
-- `server/src/utils` contains shared helpers
+Each skill can include:
 
-## Implemented API Endpoints
+- Title
+- Description
+- Difficulty
+
+### 4. Define Prerequisites
+
+Users can connect skills so that one skill depends on another.
+
+Example:
+
+- HTML before CSS
+- CSS before React
+
+This is the main standout feature because it shows relationship-based logic.
+
+### 5. Track Progress
+
+Users can mark each skill as:
+
+- Locked
+- In Progress
+- Completed
+
+When prerequisites are completed, the next skill becomes available.
+
+### 6. Visual Skill Tree
+
+Users can see their skill tree as a visual map with connected nodes.
+
+The interface will highlight:
+
+- Locked skills
+- Available skills
+- In-progress skills
+- Completed skills
+
+## Stretch Goals
+
+- Share skill trees with other users
+- Copy another user's tree
+- Recommend the next skill to learn
+- Add XP, badges, or levels
+- Show tree completion percentages
+
+## Project Management
+
+The team will use:
+
+- Git and GitHub for version control
+- GitHub Projects for task tracking
+- Pull requests for code review
+
+### High-Level Tickets
+
+- Set up repo and project structure
+- Build authentication
+- Design database schema
+- Create CRUD routes for trees
+- Create CRUD routes for skills
+- Build prerequisite logic
+- Build progress tracking
+- Build dashboard and tree views
+- Add styling and polish
+- Test and debug
+
+### Ticket Assignment
+
+Tickets will be divided by feature area. One teammate can focus more on backend work while another focuses on frontend work, and both teammates will review each other's pull requests.
+
+## Database Schema
+
+### `users`
+
+- `id` SERIAL PRIMARY KEY
+- `name` VARCHAR(100) NOT NULL
+- `email` VARCHAR(255) UNIQUE NOT NULL
+- `password_hash` TEXT NOT NULL
+- `created_at` TIMESTAMP DEFAULT NOW()
+
+### `skill_trees`
+
+- `id` SERIAL PRIMARY KEY
+- `user_id` INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE
+- `title` VARCHAR(150) NOT NULL
+- `description` TEXT
+- `is_public` BOOLEAN DEFAULT FALSE
+- `created_at` TIMESTAMP DEFAULT NOW()
+
+### `skills`
+
+- `id` SERIAL PRIMARY KEY
+- `tree_id` INTEGER NOT NULL REFERENCES skill_trees(id) ON DELETE CASCADE
+- `title` VARCHAR(150) NOT NULL
+- `description` TEXT
+- `difficulty` VARCHAR(50)
+- `position_x` INTEGER
+- `position_y` INTEGER
+- `created_at` TIMESTAMP DEFAULT NOW()
+
+### `skill_prerequisites`
+
+- `id` SERIAL PRIMARY KEY
+- `skill_id` INTEGER NOT NULL REFERENCES skills(id) ON DELETE CASCADE
+- `prerequisite_skill_id` INTEGER NOT NULL REFERENCES skills(id) ON DELETE CASCADE
+
+### `user_skill_progress`
+
+- `id` SERIAL PRIMARY KEY
+- `user_id` INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE
+- `skill_id` INTEGER NOT NULL REFERENCES skills(id) ON DELETE CASCADE
+- `status` VARCHAR(20) NOT NULL
+- `completed_at` TIMESTAMP
+
+### Relationships
+
+- A user has many skill trees
+- A skill tree has many skills
+- A skill can have many prerequisite skills
+- A user tracks progress on each skill
+
+## API Endpoints
+
+### Auth
+
+- `POST /api/auth/register`
+- `POST /api/auth/login`
+- `GET /api/auth/me`
+
+### Trees
 
 - `GET /api/trees`
 - `POST /api/trees`
+- `GET /api/trees/:treeId`
+- `PATCH /api/trees/:treeId`
+- `DELETE /api/trees/:treeId`
 
-## Folder Structure
+### Skills
 
-```text
-CapS./
-├── client/
-│   └── src/
-│       ├── components/
-│       ├── data/
-│       ├── pages/
-│       └── styles/
-├── server/
-│   └── src/
-│       ├── controllers/
-│       ├── data/
-│       ├── routes/
-│       └── utils/
-├── CODE_REVIEW_CHECKLIST.md
-├── INSTRUCTOR_MEETING_NOTES.md
-└── README.md
-```
+- `GET /api/trees/:treeId/skills`
+- `POST /api/trees/:treeId/skills`
+- `PATCH /api/skills/:skillId`
+- `DELETE /api/skills/:skillId`
 
-## Setup
+### Prerequisites
 
-### 1. Install dependencies
+- `GET /api/skills/:skillId/prerequisites`
+- `POST /api/skills/:skillId/prerequisites`
+- `DELETE /api/skills/:skillId/prerequisites/:prereqId`
 
-```bash
-cd server
-npm install
-cd ../client
-npm install
-```
+### Progress
 
-### 2. Start the backend
+- `GET /api/trees/:treeId/progress`
+- `PATCH /api/skills/:skillId/progress`
+- `GET /api/dashboard`
 
-```bash
-cd server
-npm run dev
-```
+## Frontend Pages and Routes
 
-### 3. Start the frontend
+- `/` Landing page
+- `/register` Sign up page
+- `/login` Login page
+- `/dashboard` User dashboard
+- `/trees/new` Create tree page
+- `/trees/:treeId` Tree detail page
 
-```bash
-cd client
-npm run dev
-```
+## Forms
 
-Backend runs on `http://localhost:3001`.
+### Register Form
 
-Frontend runs on `http://localhost:5173`.
+- Name
+- Email
+- Password
 
-## How to Test the Core Feature
+### Login Form
 
-1. Open the app in the browser.
-2. Enter a tree title and description.
-3. Submit the form.
-4. Confirm the new tree appears in the list.
+- Email
+- Password
 
-## Future Scope
+### New Tree Form
 
-After code review, the next planned features are:
+- Title
+- Description
 
-- authentication
-- skill nodes
-- prerequisite relationships
-- progress tracking
-- visual tree layout
+### Skill Form
+
+- Title
+- Description
+- Difficulty
+
+## Wireframe Notes
+
+- Dashboard shows all user trees
+- Tree page shows a visual map of nodes and connections
+- Colors will show skill status
+- Users can click a node to update progress or edit details
+
+## User Stories
+
+### Authentication
+
+As a user, I want to sign up and log in so that I can save my own skill trees.
+
+### Tree Creation
+
+As a user, I want to create a skill tree so that I can organize a learning goal into steps.
+
+### Skill Management
+
+As a user, I want to add, edit, and delete skills so that I can customize my tree.
+
+### Prerequisites
+
+As a user, I want to define which skills come first so that my tree follows a real learning order.
+
+### Progress Tracking
+
+As a user, I want to mark skills as in progress or completed so that I can track what I have learned.
+
+### Visual Tree
+
+As a user, I want to see my skills on a visual map so that I can understand my progress at a glance.
