@@ -1,10 +1,12 @@
 // These grab the forms and page elements from index.html.
+const authSection = document.querySelector("#auth-section");
 const registerForm = document.querySelector("#register-form");
 const loginForm = document.querySelector("#login-form");
 const treeForm = document.querySelector("#tree-form");
 const treeList = document.querySelector("#tree-list");
 const statusMessage = document.querySelector("#status-message");
 const currentUserMessage = document.querySelector("#current-user-message");
+const logoutButton = document.querySelector("#logout-button");
 
 // This stores the logged-in user in the browser while the page is open.
 let currentUser = null;
@@ -12,6 +14,23 @@ let currentUser = null;
 // This updates the status message on the page.
 function setStatus(message) {
   statusMessage.textContent = message;
+}
+
+// This updates the page when the user logs in or logs out.
+function updatePageForCurrentUser() {
+  if (!currentUser) {
+    authSection.classList.remove("hidden");
+    treeForm.classList.add("hidden");
+    logoutButton.classList.add("hidden");
+    currentUserMessage.textContent = "Log in to see your trees.";
+    treeList.innerHTML = "";
+    return;
+  }
+
+  authSection.classList.add("hidden");
+  treeForm.classList.remove("hidden");
+  logoutButton.classList.remove("hidden");
+  currentUserMessage.textContent = `Welcome, ${currentUser.name}.`;
 }
 
 // This shows the list of trees on the page.
@@ -46,6 +65,14 @@ async function loadTrees() {
   renderTrees(data.trees);
 }
 
+// This logs the user into the page after register or login.
+async function setCurrentUser(user, message) {
+  currentUser = user;
+  updatePageForCurrentUser();
+  setStatus(message);
+  await loadTrees();
+}
+
 // This runs when the register form is submitted.
 registerForm.addEventListener("submit", async (event) => {
   // This stops the page from reloading.
@@ -71,10 +98,10 @@ registerForm.addEventListener("submit", async (event) => {
     return;
   }
 
-  // This shows a success message.
-  setStatus("Account created. You can log in now.");
   // This clears the form fields.
   registerForm.reset();
+  // This updates the page and treats the new account like a logged-in user.
+  await setCurrentUser(data.user, "Account created. You are now logged in.");
 });
 
 // This runs when the login form is submitted.
@@ -101,18 +128,10 @@ loginForm.addEventListener("submit", async (event) => {
     return;
   }
 
-  // This saves the logged-in user in memory.
-  currentUser = data.user;
-  // This updates the dashboard message.
-  currentUserMessage.textContent = `Welcome, ${currentUser.name}.`;
-  // This shows the tree form after login.
-  treeForm.classList.remove("hidden");
-  // This shows a success message.
-  setStatus("Logged in successfully.");
   // This clears the login form.
   loginForm.reset();
-  // This loads the user's trees.
-  await loadTrees();
+  // This updates the page and saves the logged-in user.
+  await setCurrentUser(data.user, "Logged in successfully.");
 });
 
 // This runs when the tree form is submitted.
@@ -148,3 +167,13 @@ treeForm.addEventListener("submit", async (event) => {
   // This reloads the tree list.
   await loadTrees();
 });
+
+// This logs the user out on the page.
+logoutButton.addEventListener("click", () => {
+  currentUser = null;
+  updatePageForCurrentUser();
+  setStatus("Logged out.");
+});
+
+// This sets the correct page view when the page first loads.
+updatePageForCurrentUser();

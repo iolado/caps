@@ -17,7 +17,8 @@
     </header>
 
     <main class="page">
-      <section class="card">
+      <section id="auth-section" class="auth-grid">
+        <section class="card">
         <h2>Register</h2>
         <form id="register-form" class="form">
           <input id="register-name" type="text" placeholder="Name" required />
@@ -25,20 +26,23 @@
           <input id="register-password" type="password" placeholder="Password" required />
           <button type="submit">Create Account</button>
         </form>
-      </section>
+        </section>
 
-      <section class="card">
+        <section class="card">
         <h2>Login</h2>
         <form id="login-form" class="form">
           <input id="login-email" type="email" placeholder="Email" required />
           <input id="login-password" type="password" placeholder="Password" required />
           <button type="submit">Log In</button>
         </form>
+        </section>
       </section>
 
       <section class="card" id="dashboard-section">
         <h2>Dashboard</h2>
         <p id="current-user-message">Log in to see your trees.</p>
+
+        <button id="logout-button" class="secondary-button hidden" type="button">Log Out</button>
 
         <form id="tree-form" class="form hidden">
           <input id="tree-title" type="text" placeholder="Tree title" required />
